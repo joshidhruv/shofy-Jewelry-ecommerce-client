@@ -2,8 +2,13 @@
 const nextConfig = {
   reactStrictMode: true,
   images: {
-    domains: ['i.ibb.co','lh3.googleusercontent.com','res.cloudinary.com'],
+    domains: [
+      "i.ibb.co",
+      "lh3.googleusercontent.com",
+      "res.cloudinary.com",
+      "defx-store-dev.s3.ap-south-1.amazonaws.com",
+    ],
   },
-}
+};
 
-module.exports = nextConfig
+module.exports = nextConfig;

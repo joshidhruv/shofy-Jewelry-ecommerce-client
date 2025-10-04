@@ -25,7 +25,12 @@ const RegisterForm = () => {
   const router = useRouter();
   const { redirect } = router.query;
   // react hook form
-  const {register,handleSubmit,formState: { errors },reset} = useForm({
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+  } = useForm({
     resolver: yupResolver(schema),
   });
   // on submit
@@ -47,21 +52,46 @@ const RegisterForm = () => {
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <div className="tp-login-input-wrapper">
-        <div className="tp-login-input-box">
-          <div className="tp-login-input">
-            <input
-              {...register("name", { required: `Name is required!` })}
-              id="name"
-              name="name"
-              type="text"
-              placeholder="Shahnewaz Sakil"
-            />
+        <div className="tp-login-input-box tp-login-input-row">
+          <div className="tp-login-input-box">
+            {/* First Name */}
+            <div className="tp-login-input">
+              <input
+                {...register("firstName", {
+                  required: "First name is required!",
+                })}
+                id="firstName"
+                name="firstName"
+                type="text"
+                placeholder="Shahnewaz"
+              />
+            </div>
+            <div className="tp-login-input-title">
+              <label htmlFor="firstName">First Name</label>
+            </div>
+            <ErrorMsg msg={errors.firstName?.message} />
           </div>
-          <div className="tp-login-input-title">
-            <label htmlFor="name">Your Name</label>
+
+          <div className="tp-login-input-box">
+            {/* Last Name */}
+            <div className="tp-login-input">
+              <input
+                {...register("lastName", {
+                  required: "Last name is required!",
+                })}
+                id="lastName"
+                name="lastName"
+                type="text"
+                placeholder="Sakil"
+              />
+            </div>
+            <div className="tp-login-input-title">
+              <label htmlFor="lastName">Last Name</label>
+            </div>
+            <ErrorMsg msg={errors.lastName?.message} />
           </div>
-          <ErrorMsg msg={errors.name?.message} />
         </div>
+
         <div className="tp-login-input-box">
           <div className="tp-login-input">
             <input

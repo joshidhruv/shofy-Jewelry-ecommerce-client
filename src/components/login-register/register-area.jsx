@@ -5,7 +5,6 @@ import LoginShapes from "./login-shapes";
 import RegisterForm from "../forms/register-form";
 import GoogleSignUp from "./google-sign-up";
 
-
 const RegisterArea = () => {
   return (
     <>
@@ -27,7 +26,7 @@ const RegisterArea = () => {
                 <div className="tp-login-option">
                   <div className="tp-login-social mb-10 d-flex flex-wrap align-items-center justify-content-center">
                     <div className="tp-login-option-item has-google">
-                      <GoogleSignUp/>
+                      {/* <GoogleSignUp /> */}
                     </div>
                   </div>
                   <div className="tp-login-mail text-center mb-40">

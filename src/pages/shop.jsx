@@ -16,9 +16,10 @@ const ShopPage = ({ query }) => {
   const [selectValue, setSelectValue] = useState("");
   const [currPage, setCurrPage] = useState(1);
   // Load the maximum price once the products have been loaded
+  console.log({ products });
   useEffect(() => {
-    if (!isLoading && !isError && products?.data?.length > 0) {
-      const maxPrice = products.data.reduce((max, product) => {
+    if (!isLoading && !isError && products?.products?.length > 0) {
+      const maxPrice = products?.products.reduce((max, product) => {
         return product.price > max ? product.price : max;
       }, 0);
       setPriceValue([0, maxPrice]);
@@ -50,37 +51,42 @@ const ShopPage = ({ query }) => {
   let content = null;
 
   if (isLoading) {
-    content = <ShopLoader loading={isLoading}/>;
+    content = <ShopLoader loading={isLoading} />;
   }
   if (!isLoading && isError) {
-    content = <div className="pb-80 text-center"><ErrorMsg msg="There was an error" /></div>;
+    content = (
+      <div className="pb-80 text-center">
+        <ErrorMsg msg="There was an error" />
+      </div>
+    );
   }
-  if (!isLoading && !isError && products?.data?.length === 0) {
+  if (!isLoading && !isError && products?.products?.length === 0) {
     content = <ErrorMsg msg="No Products found!" />;
   }
-  if (!isLoading && !isError && products?.data?.length > 0) {
+
+  if (!isLoading && !isError && products?.products?.length > 0) {
     // products
-    let product_items = products.data;
+    let product_items = products.products;
     // select short filtering
     if (selectValue) {
       if (selectValue === "Default Sorting") {
-        product_items = products.data;
+        product_items = products.products;
       } else if (selectValue === "Low to High") {
-        product_items = products.data
+        product_items = products.products
           .slice()
           .sort((a, b) => Number(a.price) - Number(b.price));
       } else if (selectValue === "High to Low") {
-        product_items = products.data
+        product_items = products.products
           .slice()
           .sort((a, b) => Number(b.price) - Number(a.price));
       } else if (selectValue === "New Added") {
-        product_items = products.data
+        product_items = products.products
           .slice()
           .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
       } else if (selectValue === "On Sale") {
-        product_items = products.data.filter((p) => p.discount > 0);
+        product_items = products.products.filter((p) => p.discount > 0);
       } else {
-        product_items = products.data;
+        product_items = products.products;
       }
     }
     // price filter
@@ -144,12 +150,12 @@ const ShopPage = ({ query }) => {
     content = (
       <>
         <ShopArea
-          all_products={products.data}
+          all_products={products.products}
           products={product_items}
           otherProps={otherProps}
         />
         <ShopFilterOffCanvas
-          all_products={products.data}
+          all_products={products.products}
           otherProps={otherProps}
         />
       </>

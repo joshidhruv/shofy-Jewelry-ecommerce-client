@@ -6,8 +6,9 @@ import DetailsTabNav from "./details-tab-nav";
 import RelatedProducts from "./related-products";
 
 const ProductDetailsArea = ({ productItem }) => {
-  const { _id, img, imageURLs, videoId,status } = productItem || {};
-  const [activeImg, setActiveImg] = useState(img);
+  const { _id, img, imageURLs, videoId, status, product_images } =
+    productItem || {};
+  const [activeImg, setActiveImg] = useState(product_images?.[0]);
   const dispatch = useDispatch();
   // active image change when img change
   useEffect(() => {
@@ -18,6 +19,9 @@ const ProductDetailsArea = ({ productItem }) => {
   const handleImageActive = (item) => {
     setActiveImg(item.img);
   };
+  useEffect(() => {
+    setActiveImg(product_images?.[0]);
+  }, [product_images]);
   return (
     <section className="tp-product-details-area">
       <div className="tp-product-details-top pb-115">
@@ -28,7 +32,7 @@ const ProductDetailsArea = ({ productItem }) => {
               <DetailsThumbWrapper
                 activeImg={activeImg}
                 handleImageActive={handleImageActive}
-                imageURLs={imageURLs}
+                imageURLs={product_images}
                 imgWidth={580}
                 imgHeight={670}
                 videoId={videoId}

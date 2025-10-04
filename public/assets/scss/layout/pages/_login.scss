@@ -133,6 +133,14 @@
                 margin-bottom: 34px;
             }
         }
+         &-row {
+            display: flex;
+            gap: 16px;
+
+      .half-width {
+        flex: 1;
+      }
+    }
         & input{
             height: 56px;
             background: #FFFFFF;
@@ -338,4 +346,14 @@
             }
         }
     }
+    &-row {
+        display: flex;
+        gap: 16px;
+
+        .half-width {
+            flex: 1; 
+        }
+    }
 }
+
+
