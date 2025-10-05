@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@clerk/nextjs": "^6.33.2",
     "@hookform/resolvers": "^3.1.0",
     "@popperjs/core": "^2.11.6",
     "@react-oauth/google": "^0.11.0",
@@ -20,6 +21,7 @@
     "eslint": "8.36.0",
     "eslint-config-next": "13.2.4",
     "js-cookie": "^3.0.5",
+    "lodash": "^4.17.21",
     "next": "13.2.4",
     "react": "18.2.0",
     "react-copy-to-clipboard": "^5.1.0",

@@ -17,7 +17,8 @@ const ProductDetailsArea = ({ productItem }) => {
 
   // handle image active
   const handleImageActive = (item) => {
-    setActiveImg(item.img);
+    console.log({ item });
+    setActiveImg(item);
   };
   useEffect(() => {
     setActiveImg(product_images?.[0]);

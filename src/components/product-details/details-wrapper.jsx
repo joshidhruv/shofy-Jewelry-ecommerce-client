@@ -11,6 +11,7 @@ import { add_cart_product } from "@/redux/features/cartSlice";
 import { add_to_wishlist } from "@/redux/features/wishlist-slice";
 import { add_to_compare } from "@/redux/features/compareSlice";
 import { handleModalClose } from "@/redux/features/productModalSlice";
+import ProductVariants from "./product-variants";
 
 const DetailsWrapper = ({
   productItem,
@@ -35,10 +36,10 @@ const DetailsWrapper = ({
   } = productItem || {};
   const [ratingVal, setRatingVal] = useState(0);
   const [textMore, setTextMore] = useState(false);
+  const [selectedOptionsType, setSelectedOptionsType] = useState([]);
+  const [selectedVariant, setSelectedVariant] = useState({});
   const dispatch = useDispatch();
 
-  const dummyDescription =
-    "Lorem ipsum dolor sit amet consectetur adipisicing elit. Consequuntur minima sed magnam blanditiis odit assumenda, ut commodi ex libero dignissimos aperiam aliquam pariatur quam quis explicabo sequi asperiores perspiciatis consectetur?";
   useEffect(() => {
     if (reviews && reviews.length > 0) {
       const rating =
@@ -49,6 +50,38 @@ const DetailsWrapper = ({
       setRatingVal(0);
     }
   }, [reviews]);
+
+  useEffect(() => {
+    if (!productItem?.variants?.length) {
+      setSelectedVariant(productItem);
+      return;
+    }
+
+    const firstVariant = productItem.variants.find(
+      (data) => data?.variant_options?.length > 0
+    );
+    setSelectedVariant(firstVariant);
+
+    const initialSelected = [];
+
+    firstVariant?.variant_options.forEach((vo) => {
+      const voType = vo.option_type;
+      const voValue = vo.option_value;
+
+      const alreadyAdded = initialSelected.some(
+        (svo) => svo.types.id === voType.id
+      );
+
+      if (!alreadyAdded) {
+        initialSelected.push({
+          types: voType,
+          values: voValue,
+        });
+      }
+    });
+
+    setSelectedOptionsType(initialSelected);
+  }, [productItem]);
 
   // handle add product
   const handleAddProduct = (prd) => {
@@ -95,9 +128,7 @@ const DetailsWrapper = ({
         </div>
       </div>
       <p>
-        {textMore
-          ? dummyDescription
-          : `${dummyDescription?.substring(0, 100)}...`}
+        {textMore ? description : `${description?.substring(0, 100)}...`}
         <span onClick={() => setTextMore(!textMore)}>
           {textMore ? "See less" : "See more"}
         </span>
@@ -125,6 +156,12 @@ const DetailsWrapper = ({
       </div>
 
       {/* variations */}
+      <ProductVariants
+        productData={productItem}
+        selectedVariant={selectedVariant}
+        selectedOptionsType={selectedOptionsType}
+        setSelectedOptionsType={setSelectedOptionsType}
+      />
       {imageURLs?.some((item) => item?.color && item?.color?.name) && (
         <div className="tp-product-details-variation">
           <div className="tp-product-details-variation-item">
