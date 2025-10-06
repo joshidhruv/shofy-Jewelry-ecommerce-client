@@ -15,7 +15,7 @@ import {
 
 const RegisterArea = () => {
   const { isSignedIn, user } = useUser();
-  console.log({ isSignedIn, user });
+
   return (
     <>
       <section className="tp-login-area pb-140 p-relative z-index-1 fix">

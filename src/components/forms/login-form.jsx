@@ -44,7 +44,7 @@ const LoginForm = () => {
     });
     reset();
   };
-  console.log({ redirect });
+
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <div className="tp-login-input-wrapper">

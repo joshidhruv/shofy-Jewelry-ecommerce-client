@@ -15,10 +15,18 @@ import ProductVariants from "./product-variants";
 
 const DetailsWrapper = ({
   productItem,
+  selectedVariant,
+  setSelectedVariant,
   handleImageActive,
   activeImg,
   detailsBottom = false,
 }) => {
+  const [ratingVal, setRatingVal] = useState(0);
+  const [textMore, setTextMore] = useState(false);
+  const [selectedOptionsType, setSelectedOptionsType] = useState([]);
+
+  const dispatch = useDispatch();
+
   const {
     sku,
     img,
@@ -33,12 +41,7 @@ const DetailsWrapper = ({
     tags,
     offerDate,
     product_images,
-  } = productItem || {};
-  const [ratingVal, setRatingVal] = useState(0);
-  const [textMore, setTextMore] = useState(false);
-  const [selectedOptionsType, setSelectedOptionsType] = useState([]);
-  const [selectedVariant, setSelectedVariant] = useState({});
-  const dispatch = useDispatch();
+  } = selectedVariant || {};
 
   useEffect(() => {
     if (reviews && reviews.length > 0) {
@@ -52,7 +55,9 @@ const DetailsWrapper = ({
   }, [reviews]);
 
   useEffect(() => {
+    console.log("productItem?.variants?.length", productItem?.variants?.length);
     if (!productItem?.variants?.length) {
+      console.log("sdt proudct item");
       setSelectedVariant(productItem);
       return;
     }
@@ -60,6 +65,7 @@ const DetailsWrapper = ({
     const firstVariant = productItem.variants.find(
       (data) => data?.variant_options?.length > 0
     );
+    console.log("set firstVariant", { firstVariant });
     setSelectedVariant(firstVariant);
 
     const initialSelected = [];
@@ -79,9 +85,35 @@ const DetailsWrapper = ({
         });
       }
     });
-
+    console.log("set initialSelected", { initialSelected });
     setSelectedOptionsType(initialSelected);
   }, [productItem]);
+
+  useEffect(() => {
+    if (!productItem?.variants?.length) return;
+    console.log("!productItem?.variants", !productItem?.variants);
+    if (selectedOptionsType?.length === 0) {
+      setSelectedVariant(productItem?.variants?.[0]);
+      return;
+    }
+
+    const matchedVariant = productItem?.variants?.find((variant) => {
+      const variantOptions = variant?.variant_options || [];
+
+      return selectedOptionsType?.every(({ types, values }) =>
+        variantOptions.some(
+          (vo) =>
+            vo.option_type.id === types.id && vo.option_value.id === values.id
+        )
+      );
+    });
+
+    if (matchedVariant) {
+      setSelectedVariant(matchedVariant);
+    } else {
+      setSelectedVariant(productItem.variants[0]);
+    }
+  }, [selectedOptionsType, productItem]);
 
   // handle add product
   const handleAddProduct = (prd) => {
@@ -98,7 +130,6 @@ const DetailsWrapper = ({
     dispatch(add_to_compare(prd));
   };
 
-  console.log({ description });
   return (
     <div className="tp-product-details-wrapper">
       <div className="tp-product-details-category">
@@ -127,12 +158,14 @@ const DetailsWrapper = ({
           </div>
         </div>
       </div>
-      <p>
-        {textMore ? description : `${description?.substring(0, 100)}...`}
-        <span onClick={() => setTextMore(!textMore)}>
-          {textMore ? "See less" : "See more"}
-        </span>
-      </p>
+      {description && (
+        <p>
+          {textMore ? description : `${description?.substring(0, 100)}...`}
+          <span onClick={() => setTextMore(!textMore)}>
+            {textMore ? "See less" : "See more"}
+          </span>
+        </p>
+      )}
 
       {/* price */}
       <div className="tp-product-details-price-wrapper mb-20">
@@ -158,11 +191,10 @@ const DetailsWrapper = ({
       {/* variations */}
       <ProductVariants
         productData={productItem}
-        selectedVariant={selectedVariant}
         selectedOptionsType={selectedOptionsType}
         setSelectedOptionsType={setSelectedOptionsType}
       />
-      {imageURLs?.some((item) => item?.color && item?.color?.name) && (
+      {/* {imageURLs?.some((item) => item?.color && item?.color?.name) && (
         <div className="tp-product-details-variation">
           <div className="tp-product-details-variation-item">
             <h4 className="tp-product-details-variation-title">Color :</h4>
@@ -190,7 +222,7 @@ const DetailsWrapper = ({
             </div>
           </div>
         </div>
-      )}
+      )} */}
 
       {/* if ProductDetailsCountdown true start */}
       {offerDate?.endDate && (

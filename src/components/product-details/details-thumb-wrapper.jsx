@@ -12,7 +12,7 @@ const DetailsThumbWrapper = ({
   status,
 }) => {
   const [isVideoOpen, setIsVideoOpen] = useState(false);
-  console.log({ activeImg });
+
   return (
     <>
       <div className="tp-product-details-thumb-wrapper tp-tab d-sm-flex">

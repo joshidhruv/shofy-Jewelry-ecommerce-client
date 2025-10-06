@@ -30,7 +30,6 @@ const ShopArea = ({ all_products, products, otherProps }) => {
     return product.price > max ? product.price : max;
   }, 0);
 
-  console.log({ all_products, products, otherProps, filteredRows });
   return (
     <>
       <section className="tp-shop-area pb-120">
@@ -44,15 +43,15 @@ const ShopArea = ({ all_products, products, otherProps }) => {
                   maxPrice={maxPrice}
                 />
                 {/* status */}
-                <StatusFilter setCurrPage={setCurrPage} />
+                {/* <StatusFilter setCurrPage={setCurrPage} /> */}
                 {/* categories */}
                 <CategoryFilter setCurrPage={setCurrPage} />
                 {/* color */}
-                <ColorFilter setCurrPage={setCurrPage} />
+                {/* <ColorFilter setCurrPage={setCurrPage} /> */}
                 {/* product rating */}
-                <TopRatedProducts />
+                {/* <TopRatedProducts /> */}
                 {/* brand */}
-                <ProductBrand setCurrPage={setCurrPage} />
+                {/* <ProductBrand setCurrPage={setCurrPage} /> */}
                 {/* reset filter */}
                 <ResetButton />
               </div>

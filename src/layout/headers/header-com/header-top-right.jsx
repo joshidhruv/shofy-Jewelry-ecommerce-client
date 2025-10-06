@@ -1,21 +1,32 @@
 import Link from "next/link";
 import { useRouter } from "next/router";
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { userLoggedOut } from "@/redux/features/auth/authSlice";
+import {
+  SignedIn,
+  SignedOut,
+  SignIn,
+  SignInButton,
+  SignUpButton,
+  UserButton,
+  useUser,
+} from "@clerk/nextjs";
+import { useLoginUserMutation } from "@/redux/features/auth/authApi";
+import { notifySuccess } from "@/utils/toast";
 
 // language
-function Language({active,handleActive}) {
+function Language({ active, handleActive }) {
   return (
     <div className="tp-header-top-menu-item tp-header-lang">
       <span
-        onClick={() => handleActive('lang')}
+        onClick={() => handleActive("lang")}
         className="tp-header-lang-toggle"
         id="tp-header-lang-toggle"
       >
         English
       </span>
-      <ul className={active === 'lang' ? "tp-lang-list-open" : ""}>
+      <ul className={active === "lang" ? "tp-lang-list-open" : ""}>
         <li>
           <a href="#">Spanish</a>
         </li>
@@ -31,17 +42,17 @@ function Language({active,handleActive}) {
 }
 
 // currency
-function Currency({active,handleActive}) {
+function Currency({ active, handleActive }) {
   return (
     <div className="tp-header-top-menu-item tp-header-currency">
       <span
-        onClick={() => handleActive('currency')}
+        onClick={() => handleActive("currency")}
         className="tp-header-currency-toggle"
         id="tp-header-currency-toggle"
       >
         USD
       </span>
-      <ul className={active === 'currency' ? "tp-currency-list-open" : ""}>
+      <ul className={active === "currency" ? "tp-currency-list-open" : ""}>
         <li>
           <a href="#">EUR</a>
         </li>
@@ -60,25 +71,53 @@ function Currency({active,handleActive}) {
 }
 
 // setting
-function ProfileSetting({active,handleActive}) {
+function ProfileSetting({ active, handleActive }) {
   const { user } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
   const router = useRouter();
+  const [loginUser, {}] = useLoginUserMutation();
+  const hasLoggedIn = useRef(false);
   // handle logout
   const handleLogout = () => {
     dispatch(userLoggedOut());
-    router.push('/')
-  }
+    router.push("/");
+  };
+
+  const { isSignedIn, user: clerkUser } = useUser();
+
+  useEffect(() => {
+    if (isSignedIn && clerkUser && !hasLoggedIn.current) {
+      hasLoggedIn.current = true;
+      let data = {
+        organization_id: process.env.NEXT_PUBLIC_ORG_ID,
+        cleark_id: clerkUser?.id,
+        first_name: clerkUser?.firstName,
+        last_name: clerkUser?.lastName,
+        email: clerkUser?.emailAddresses?.[0]?.emailAddress,
+      };
+
+      loginUser(data).then((res) => {
+        if (res?.data) {
+          localStorage.setItem("access_token", res?.data?.token);
+          notifySuccess("Login successfully");
+          // router.push(redirect || "/");
+        } else {
+          // notifyError(data?.error?.data?.error);
+        }
+      });
+    }
+  }, [isSignedIn, clerkUser?.id]);
+
   return (
     <div className="tp-header-top-menu-item tp-header-setting">
       <span
-        onClick={() => handleActive('setting')}
+        onClick={() => handleActive("setting")}
         className="tp-header-setting-toggle"
         id="tp-header-setting-toggle"
       >
         Setting
       </span>
-      <ul className={active === 'setting' ? "tp-setting-list-open" : ""}>
+      <ul className={active === "setting" ? "tp-setting-list-open" : ""}>
         <li>
           <Link href="/profile">My Profile</Link>
         </li>
@@ -89,8 +128,22 @@ function ProfileSetting({active,handleActive}) {
           <Link href="/cart">Cart</Link>
         </li>
         <li>
-          {!user?.name &&<Link href="/login" className="cursor-pointer">Login</Link>}
-          {user?.name &&<a onClick={handleLogout} className="cursor-pointer">Logout</a>}
+          {!user?.name && (
+            <SignedOut>
+              {/* Sign In redirect */}
+              <SignInButton>
+                <button>Sign In</button>
+              </SignInButton>
+            </SignedOut>
+          )}
+          <SignedIn>
+            <UserButton />
+          </SignedIn>
+          {user?.name && (
+            <a onClick={handleLogout} className="cursor-pointer">
+              Logout
+            </a>
+          )}
         </li>
       </ul>
     </div>
@@ -98,16 +151,15 @@ function ProfileSetting({active,handleActive}) {
 }
 
 const HeaderTopRight = () => {
-  const [active, setIsActive] = useState('');
+  const [active, setIsActive] = useState("");
   // handle active
   const handleActive = (type) => {
-    if(type === active){
-      setIsActive('')
+    if (type === active) {
+      setIsActive("");
+    } else {
+      setIsActive(type);
     }
-    else {
-      setIsActive(type)
-    }
-  }
+  };
   return (
     <div className="tp-header-top-menu d-flex align-items-center justify-content-end">
       <Language active={active} handleActive={handleActive} />

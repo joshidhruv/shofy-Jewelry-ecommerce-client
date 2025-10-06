@@ -1,9 +1,8 @@
-import { compact, filter, flatten, map, uniqBy } from "lodash";
+import { compact, filter, flatten, map, some, uniqBy } from "lodash";
 import React from "react";
 
 const ProductVariants = ({
   productData,
-  selectedVariant,
   selectedOptionsType,
   setSelectedOptionsType,
 }) => {
@@ -89,15 +88,140 @@ const ProductVariants = ({
       return selectedVariantsOption;
     });
   };
-  console.log({
-    ProductVariants,
-    variantOptionTypesName,
-    variantOptionTypesValue,
-    firstOptionType,
-    selectedVariant,
-    selectedOptionsType,
-  });
-  return <div>ProductVariants</div>;
+
+  return (
+    <div
+      style={{
+        display: "flex",
+        rowGap: "24px",
+        flexDirection: "column",
+      }}
+    >
+      {variantOptionTypesName?.length > 0 &&
+        variantOptionTypesName?.map((product, index) => {
+          const optionType = product;
+          const optionTypeValues = filter(variantOptionTypesValue, [
+            "option_type_id",
+            optionType?.id,
+          ]);
+
+          return (
+            <div key={index}>
+              <div>{optionType?.name} :</div>
+              <div>
+                <div
+                  style={{ display: "flex", columnGap: "24px" }}
+                  align={"center"}
+                >
+                  {optionTypeValues?.map((data, index) => {
+                    const isSelected = some(selectedOptionsType, [
+                      "values.id",
+                      data?.id,
+                    ]);
+
+                    const isSameTypeAsFirst =
+                      optionType.id === firstOptionType.id;
+                    let isAvailable = true;
+
+                    if (!isSameTypeAsFirst) {
+                      const selectedFirst = selectedOptionsType?.find(
+                        (sel) => sel.types.id === firstOptionType.id
+                      );
+
+                      if (selectedFirst) {
+                        isAvailable = productData.variants.some(
+                          (variant) =>
+                            variant?.variant_options.some(
+                              (vo) =>
+                                vo.option_type.id === optionType.id &&
+                                vo.option_value.id === data.id
+                            ) &&
+                            variant?.variant_options.some(
+                              (vo) =>
+                                vo.option_type.id === selectedFirst.types.id &&
+                                vo.option_value.id === selectedFirst.values.id
+                            )
+                        );
+                      }
+                    }
+
+                    return (
+                      <VariantsOption
+                        key={index}
+                        data={data}
+                        type={
+                          optionType?.name.toLowerCase() === "color"
+                            ? "Color"
+                            : ""
+                        }
+                        disabled={!isAvailable}
+                        selected={isSelected}
+                        onSelected={(optionTypeValue) =>
+                          onSelectedOptionValue(optionTypeValue, product)
+                        }
+                      />
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          );
+        })}
+    </div>
+  );
 };
 
+const VariantsOption = ({ type, selected, onSelected, data, disabled }) => {
+  const handleClick = () => {
+    if (!disabled) {
+      onSelected(data);
+    }
+  };
+
+  return type === "Color" ? (
+    <div
+      style={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        height: "40px",
+        width: "40px",
+        borderRadius: "50%",
+        padding: "2px",
+
+        border: selected ? "2px solid #000000" : "2px solid #e0e0e0",
+        opacity: disabled ? 0.4 : 1,
+        cursor: disabled ? "not-allowed" : "pointer",
+      }}
+      onClick={handleClick}
+    >
+      <div
+        style={{
+          backgroundColor: data?.value || "#1D4A6E",
+          height: "30px",
+          width: "30px",
+          borderRadius: "50%",
+        }}
+      />
+    </div>
+  ) : (
+    <div
+      style={{
+        opacity: disabled ? 0.4 : 1,
+        cursor: disabled ? "not-allowed" : "pointer",
+
+        padding: "8px 16px",
+        border: "1px solid #1E1E1E",
+        color: "#1E1E1E",
+
+        borderRadius: "4px",
+        fontSize: "14px",
+        lineHeight: "18px",
+      }}
+      onClick={handleClick}
+    >
+      {data?.name}
+    </div>
+  );
+};
 export default ProductVariants;

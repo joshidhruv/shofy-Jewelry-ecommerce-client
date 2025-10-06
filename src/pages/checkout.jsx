@@ -8,13 +8,12 @@ import HeaderTwo from "@/layout/headers/header-2";
 import Footer from "@/layout/footers/footer";
 import CommonBreadcrumb from "@/components/breadcrumb/common-breadcrumb";
 import CheckoutArea from "@/components/checkout/checkout-area";
-import { useUser } from "@clerk/nextjs";
+import { SignIn, useUser } from "@clerk/nextjs";
 
 const CheckoutPage = () => {
   const router = useRouter();
-  const { isSignedIn } = useUser();
+  const { isSignedIn, ...data } = useUser();
   useEffect(() => {
-    console.log({ isSignedIn });
     if (!isSignedIn) {
       router.push("/login");
     }

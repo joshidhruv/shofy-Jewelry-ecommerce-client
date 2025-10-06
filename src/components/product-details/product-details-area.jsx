@@ -6,10 +6,12 @@ import DetailsTabNav from "./details-tab-nav";
 import RelatedProducts from "./related-products";
 
 const ProductDetailsArea = ({ productItem }) => {
-  const { _id, img, imageURLs, videoId, status, product_images } =
-    productItem || {};
-  const [activeImg, setActiveImg] = useState(product_images?.[0]);
   const dispatch = useDispatch();
+  const [selectedVariant, setSelectedVariant] = useState({});
+  const { _id, img, videoId, status, product_images } =
+    selectedVariant || productItem;
+  const [activeImg, setActiveImg] = useState(product_images?.[0]);
+
   // active image change when img change
   useEffect(() => {
     setActiveImg(img);
@@ -17,12 +19,14 @@ const ProductDetailsArea = ({ productItem }) => {
 
   // handle image active
   const handleImageActive = (item) => {
-    console.log({ item });
     setActiveImg(item);
   };
+
   useEffect(() => {
     setActiveImg(product_images?.[0]);
   }, [product_images]);
+
+  console.log({ selectedVariant });
   return (
     <section className="tp-product-details-area">
       <div className="tp-product-details-top pb-115">
@@ -44,6 +48,8 @@ const ProductDetailsArea = ({ productItem }) => {
             <div className="col-xl-5 col-lg-6">
               {/* product-details-wrapper start */}
               <DetailsWrapper
+                selectedVariant={selectedVariant}
+                setSelectedVariant={setSelectedVariant}
                 productItem={productItem}
                 handleImageActive={handleImageActive}
                 activeImg={activeImg}

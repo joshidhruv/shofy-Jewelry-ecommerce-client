@@ -2,6 +2,8 @@ import { apiSlice } from "@/redux/api/apiSlice";
 import { userLoggedIn } from "./authSlice";
 import Cookies from "js-cookie";
 
+const apiUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+
 export const authApi = apiSlice.injectEndpoints({
   overrideExisting: true,
   endpoints: (builder) => ({
@@ -46,7 +48,7 @@ export const authApi = apiSlice.injectEndpoints({
     // login
     loginUser: builder.mutation({
       query: (data) => ({
-        url: "https://shofy-backend.vercel.app/api/user/login",
+        url: `${apiUrl}/api/login`,
         method: "POST",
         body: data,
       }),
@@ -94,7 +96,8 @@ export const authApi = apiSlice.injectEndpoints({
     }),
     // confirmEmail
     confirmEmail: builder.query({
-      query: (token) => `https://shofy-backend.vercel.app/api/user/confirmEmail/${token}`,
+      query: (token) =>
+        `https://shofy-backend.vercel.app/api/user/confirmEmail/${token}`,
 
       async onQueryStarted(arg, { queryFulfilled, dispatch }) {
         try {

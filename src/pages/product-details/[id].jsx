@@ -12,10 +12,10 @@ import PrdDetailsLoader from "@/components/loader/prd-details-loader";
 
 const ProductDetailsPage = ({ query }) => {
   const { data: product, isLoading, isError } = useGetProductQuery(query.id);
-  console.log(query.id);
+
   // decide what to render
   let content = null;
-  console.log({ product });
+
   if (isLoading) {
     content = <PrdDetailsLoader loading={isLoading} />;
   }
@@ -34,7 +34,6 @@ const ProductDetailsPage = ({ query }) => {
     );
   }
 
-  console.log({ product, isLoading, isError });
   return (
     <Wrapper>
       <SEO pageTitle="Product Details" />

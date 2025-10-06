@@ -16,7 +16,7 @@ const ShopPage = ({ query }) => {
   const [selectValue, setSelectValue] = useState("");
   const [currPage, setCurrPage] = useState(1);
   // Load the maximum price once the products have been loaded
-  console.log({ products });
+
   useEffect(() => {
     if (!isLoading && !isError && products?.products?.length > 0) {
       const maxPrice = products?.products.reduce((max, product) => {
