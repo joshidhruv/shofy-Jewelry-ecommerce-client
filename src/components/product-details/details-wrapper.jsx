@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Rating } from "react-simple-star-rating";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import Link from "next/link";
 // internal
 import { AskQuestion, CompareTwo, WishlistTwo } from "@/svg";
@@ -12,6 +12,12 @@ import { add_to_wishlist } from "@/redux/features/wishlist-slice";
 import { add_to_compare } from "@/redux/features/compareSlice";
 import { handleModalClose } from "@/redux/features/productModalSlice";
 import ProductVariants from "./product-variants";
+import {
+  useAddToCartMutation,
+  useCreateCartMutation,
+  useGetUserCartQuery,
+} from "@/redux/features/cart/cartApi";
+import useCartInfo from "@/hooks/use-cart-info";
 
 const DetailsWrapper = ({
   productItem,
@@ -26,6 +32,31 @@ const DetailsWrapper = ({
   const [selectedOptionsType, setSelectedOptionsType] = useState([]);
 
   const dispatch = useDispatch();
+  const token = localStorage.getItem("access_token");
+  const { initialCartInfo } = useCartInfo();
+  const { cart } = useSelector((state) => state.cartNew);
+
+  // const currentCartItem =
+  const [
+    createCart,
+    {
+      isLoading: creatingCartLoading,
+      isError: createCartError,
+      data: createCartData,
+    },
+  ] = useCreateCartMutation();
+
+  const [
+    addToCart,
+    {
+      isLoading: addingToCartLoading,
+      isError: addToCartError,
+      data: addToCartData,
+    },
+  ] = useAddToCartMutation();
+  const { data } = useGetUserCartQuery({ token });
+
+  const [productQuantity, setProductQuantity] = useState(1);
 
   const {
     sku,
@@ -65,7 +96,7 @@ const DetailsWrapper = ({
     const firstVariant = productItem.variants.find(
       (data) => data?.variant_options?.length > 0
     );
-    console.log("set firstVariant", { firstVariant });
+
     setSelectedVariant(firstVariant);
 
     const initialSelected = [];
@@ -85,7 +116,7 @@ const DetailsWrapper = ({
         });
       }
     });
-    console.log("set initialSelected", { initialSelected });
+
     setSelectedOptionsType(initialSelected);
   }, [productItem]);
 
@@ -116,8 +147,26 @@ const DetailsWrapper = ({
   }, [selectedOptionsType, productItem]);
 
   // handle add product
-  const handleAddProduct = (prd) => {
-    dispatch(add_cart_product(prd));
+  const handleAddProduct = async (prd) => {
+    try {
+      if (!cart) {
+        const result = await createCart({ token, initialCartInfo }).unwrap();
+        console.log("Created Cart:", result);
+        setProductQuantity(1); // reset quantity
+      } else {
+        const data = {
+          line_itemable_id: prd?.id,
+          quantity: productQuantity,
+        };
+
+        const result = await addToCart({ token, data }).unwrap();
+        getUserCart({ token });
+        console.log("Added to Cart:", result);
+        setProductQuantity(1); // reset quantity
+      }
+    } catch (err) {
+      console.error("Error adding product:", err);
+    }
   };
 
   // handle wishlist product
@@ -130,6 +179,7 @@ const DetailsWrapper = ({
     dispatch(add_to_compare(prd));
   };
 
+  console.log({ cart });
   return (
     <div className="tp-product-details-wrapper">
       <div className="tp-product-details-category">
@@ -194,35 +244,6 @@ const DetailsWrapper = ({
         selectedOptionsType={selectedOptionsType}
         setSelectedOptionsType={setSelectedOptionsType}
       />
-      {/* {imageURLs?.some((item) => item?.color && item?.color?.name) && (
-        <div className="tp-product-details-variation">
-          <div className="tp-product-details-variation-item">
-            <h4 className="tp-product-details-variation-title">Color :</h4>
-            <div className="tp-product-details-variation-list">
-              {imageURLs.map((item, i) => (
-                <button
-                  onClick={() => handleImageActive(item)}
-                  key={i}
-                  type="button"
-                  className={`color tp-color-variation-btn ${
-                    item.img === activeImg ? "active" : ""
-                  }`}
-                >
-                  <span
-                    data-bg-color={`${item.color.clrCode}`}
-                    style={{ backgroundColor: `${item.color.clrCode}` }}
-                  ></span>
-                  {item.color && item.color.name && (
-                    <span className="tp-color-variation-tootltip">
-                      {item.color.name}
-                    </span>
-                  )}
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-      )} */}
 
       {/* if ProductDetailsCountdown true start */}
       {offerDate?.endDate && (
@@ -235,7 +256,10 @@ const DetailsWrapper = ({
         <h3 className="tp-product-details-action-title">Quantity</h3>
         <div className="tp-product-details-action-item-wrapper d-sm-flex align-items-center">
           {/* product quantity */}
-          <ProductQuantity />
+          <ProductQuantity
+            productQuantity={productQuantity}
+            setProductQuantity={setProductQuantity}
+          />
           {/* product quantity */}
           <div className="tp-product-details-add-to-cart mb-15 w-100">
             <button

@@ -1,45 +1,58 @@
 import { apiSlice } from "@/redux/api/apiSlice";
-import { userLoggedIn } from "./authSlice";
 import Cookies from "js-cookie";
+import { cartCreated } from "./cartSlice";
 
 const apiUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 export const authApi = apiSlice.injectEndpoints({
   overrideExisting: true,
   endpoints: (builder) => ({
-    registerUser: builder.mutation({
-      query: (data) => ({
-        url: "https://shofy-backend.vercel.app/api/user/signup",
+    // create cart
+    createCart: builder.mutation({
+      query: ({ token, initialCartInfo }) => ({
+        url: `${apiUrl}/api/carts`,
         method: "POST",
-        body: data,
-      }),
-    }),
-    // add to cart item
-    addToCart: builder.mutation({
-      query: (token) => ({
-        url: `https://shofy-backend.vercel.app/api/user/register/${token}`,
-        method: "POST",
+        body: initialCartInfo,
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       }),
 
       async onQueryStarted(arg, { queryFulfilled, dispatch }) {
         try {
           const result = await queryFulfilled;
+          console.log({ result });
+          dispatch(cartCreated({ cart: result.data }));
+        } catch (err) {
+          // do nothing
+        }
+      },
+    }),
+    // add to cart item
+    addToCart: builder.mutation({
+      query: ({ token, data }) => ({
+        url: `${apiUrl}/api/line_items`,
+        method: "POST",
+        body: data,
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }),
+    }),
 
-          Cookies.set(
-            "userInfo",
-            JSON.stringify({
-              accessToken: result.data.data.token,
-              user: result.data.data.user,
-            }),
-            { expires: 0.5 }
-          );
+    // get current user cart
+    getUserCart: builder.query({
+      query: ({ token }) => ({
+        url: `${apiUrl}/api/carts`,
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }),
 
-          dispatch(
-            userLoggedIn({
-              accessToken: result.data.data.token,
-              user: result.data.data.user,
-            })
-          );
+      async onQueryStarted(arg, { queryFulfilled, dispatch }) {
+        try {
+          const result = await queryFulfilled;
+          dispatch(cartCreated({ cart: result.data }));
         } catch (err) {
           // do nothing
         }
@@ -49,12 +62,7 @@ export const authApi = apiSlice.injectEndpoints({
 });
 
 export const {
-  useLoginUserMutation,
-  useRegisterUserMutation,
-  useConfirmEmailQuery,
-  useResetPasswordMutation,
-  useConfirmForgotPasswordMutation,
-  useChangePasswordMutation,
-  useUpdateProfileMutation,
-  useSignUpProviderMutation,
+  useCreateCartMutation,
+  useAddToCartMutation,
+  useGetUserCartQuery,
 } = authApi;

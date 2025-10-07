@@ -99,7 +99,7 @@ function ProfileSetting({ active, handleActive }) {
       loginUser(data).then((res) => {
         if (res?.data) {
           localStorage.setItem("access_token", res?.data?.token);
-          notifySuccess("Login successfully");
+          // notifySuccess("Login successfully");
           // router.push(redirect || "/");
         } else {
           // notifyError(data?.error?.data?.error);
