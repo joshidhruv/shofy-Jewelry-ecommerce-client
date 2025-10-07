@@ -13,9 +13,9 @@ import { add_to_compare } from "@/redux/features/compareSlice";
 const ShopListItem = ({ product }) => {
   const {
     _id,
-    img,
+    product_images,
     category,
-    title,
+    name,
     reviews,
     price,
     discount,
@@ -24,6 +24,9 @@ const ShopListItem = ({ product }) => {
   } = product || {};
   const dispatch = useDispatch();
   const [ratingVal, setRatingVal] = useState(0);
+
+  const productImage = product_images?.[0]?.product_image_url;
+
   useEffect(() => {
     if (reviews && reviews.length > 0) {
       const rating =
@@ -49,11 +52,30 @@ const ShopListItem = ({ product }) => {
     dispatch(add_to_compare(prd));
   };
 
+  console.log({ product });
   return (
-    <div className="tp-product-list-item d-md-flex">
-      <div className="tp-product-list-thumb p-relative fix">
-        <Link href={`/product-details/${_id}`}>
-          <Image src={img} alt="product img" width={350} height={310} />
+    <div
+      className="tp-product-list-item d-md-flex"
+      style={{
+        display: "flex",
+        alignItems: "flex-start",
+        width: "100%",
+        alignItems: "stretch",
+      }}
+    >
+      <div
+        className="tp-product-list-thumb p-relative fix"
+        style={{
+          flexShrink: 0,
+        }}
+      >
+        <Link href={`/product-details/${_id}`} style={{ width: "350px" }}>
+          <Image
+            src={productImage}
+            alt="product img"
+            width={350}
+            height={310}
+          />
         </Link>
 
         {/* <!-- product action --> */}
@@ -92,7 +114,13 @@ const ShopListItem = ({ product }) => {
           </div>
         </div>
       </div>
-      <div className="tp-product-list-content">
+      <div
+        className="tp-product-list-content"
+        style={{
+          flex: 1, // take remaining space
+          paddingLeft: "20px",
+        }}
+      >
         <div className="tp-product-content-2 pt-15">
           <div className="tp-product-tag-2">
             {tags?.map((t, i) => (
@@ -101,8 +129,8 @@ const ShopListItem = ({ product }) => {
               </a>
             ))}
           </div>
-          <h3 className="tp-product-title-2">
-            <Link href={`/product-details/${_id}`}>{title}</Link>
+          <h3 className="tp-product-name-2">
+            <Link href={`/product-details/${_id}`}>{name}</Link>
           </h3>
           <div className="tp-product-rating-icon tp-product-rating-icon-2">
             <Rating
@@ -126,7 +154,7 @@ const ShopListItem = ({ product }) => {
                 </span>
               </>
             ) : (
-              <span className="tp-product-price-2 new-price">${price}</span>
+              <span className="tp-product-price-2 new-price">₹{price}</span>
             )}
           </div>
           <p>{description?.substring(0, 100)}</p>
